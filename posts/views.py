@@ -52,14 +52,16 @@ def follow(request, username):
 
 def HomeView(request):
     questions=Question.objects.all().order_by('-published_date')
-    notifications=Notification.objects.filter(user=request.user)
+    if request.user.is_authenticated:
+        notifications=Notification.objects.filter(user=request.user)
     context={'questions':questions,'notifications': notifications}
     template_name = 'home.html'
     return render(request,'home.html',context=context)
 
 def detailedquestion(request,slug):
     user_visit=request.user
-    notifications=Notification.objects.filter(user=request.user)
+    if request.user.is_authenticated:
+        notifications=Notification.objects.filter(user=request.user)
 
     quest=get_object_or_404(Question,slug=slug)
     quest_user=quest.author
@@ -70,7 +72,8 @@ def detailedquestion(request,slug):
 def askquestion(request):
     user_asking=request.user
     form = AskQuestionForm(request.POST)
-    notifications=Notification.objects.filter(user=request.user)
+    if request.user.is_authenticated:
+        notifications=Notification.objects.filter(user=request.user)
     if request.method=='POST':
         post=form.save(commit=False)
         post.slug=slugify(str(post.body)+("_")+str(user_asking)+("_")+str(datetime.datetime.now()))
@@ -85,7 +88,8 @@ def addAnswer(request,slug):
     ques=get_object_or_404(Question,slug=slug)
     user_visit=request.user
     form=AddAnswer(request.POST)
-    notifications=Notification.objects.filter(user=request.user)
+    if request.user.is_authenticated:
+        notifications=Notification.objects.filter(user=request.user)
 
     if request.method=='POST':
         post=form.save(commit=False)
@@ -160,6 +164,7 @@ class SearchResultsView(ListView):
         object_list=Question.objects.filter(
                     Q(body__icontains=query)
             )
+
         return object_list
 
 
